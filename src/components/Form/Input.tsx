@@ -8,7 +8,6 @@ import {
 interface InputProps extends ChakraInputProps {
   name: string;
   label?: string;
-  id: string;
 }
 
 export function Input({ name, label, ...rest }: InputProps) {

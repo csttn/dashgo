@@ -15,14 +15,9 @@ export default function SignIn() {
         flexDir='column'
       >
         <Stack spacing='4'>
-          <Input name='email' type='email' id='email' label='Email' />
+          <Input name='email' type='email' label='Email' />
 
-          <Input
-            name='password'
-            type='password'
-            id='password'
-            label='Password'
-          />
+          <Input name='password' type='password' label='Password' />
         </Stack>
         <Button type='submit' mt='6' colorScheme='pink' size='lg'>
           Entrar
