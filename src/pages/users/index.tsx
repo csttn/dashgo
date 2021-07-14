@@ -1,5 +1,3 @@
-import Link from 'next/link';
-
 import {
   Box,
   Button,
@@ -17,16 +15,20 @@ import {
   Tr,
   useBreakpointValue,
 } from '@chakra-ui/react';
+import Link from 'next/link';
+import { useState } from 'react';
 import { RiAddLine, RiPencilLine } from 'react-icons/ri';
 import Header from '../../components/Header';
 import { Pagination } from '../../components/Pagination';
 import SideBar from '../../components/SideBar';
-
 import { useUsers } from '../../services/hooks/useUsers';
 
 export default function UserList() {
+  const [page, setPage] = useState(1);
+
+  console.log(page);
   // buscando informações com react-query
-  const { data, isLoading, isFetching, error } = useUsers();
+  const { data, isLoading, isFetching, error } = useUsers(page);
 
   const isWideVersion = useBreakpointValue({
     base: false,
@@ -82,7 +84,7 @@ export default function UserList() {
                 </Thead>
 
                 <Tbody>
-                  {data.map((user) => (
+                  {data.users.map((user) => (
                     <Tr key={user.id}>
                       <Td px={['4', '4', '6']}>
                         <Checkbox colorScheme='pink' />
@@ -114,7 +116,11 @@ export default function UserList() {
                 </Tbody>
               </Table>
 
-              <Pagination totalCountOfRegister={200} currentPage={10} onPageChange={() => {}} />
+              <Pagination
+                totalCountOfRegister={data.totalCount}
+                currentPage={page}
+                onPageChange={setPage}
+              />
             </>
           )}
         </Box>
