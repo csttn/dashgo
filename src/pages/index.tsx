@@ -2,14 +2,27 @@ import { Flex, Button, Stack } from '@chakra-ui/react';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { Input } from '../components/Form/Input';
 
+import { yupResolver } from '@hookform/resolvers/yup';
+
+import * as yup from 'yup';
+
 type SignInFormData = {
   email: string;
   password: string;
 };
 
-export default function SignIn() {
-  const { register, handleSubmit, formState } = useForm();
+//  definindo Schem acom yup
+const signInformSchema = yup.object().shape({
+  email: yup.string().required('E-mail obrigatório').email('E-mail inválido'),
+  password: yup.string().required('Senha obrigatória'),
+});
 
+export default function SignIn() {
+  //  Buscando informações do react hook form
+  const { register, handleSubmit, formState } = useForm({
+    resolver: yupResolver(signInformSchema),
+  });
+  //  erros na validação do react hook form
   const { errors } = formState;
 
   const handleSignIn: SubmitHandler<SignInFormData> = async (values) => {
@@ -26,11 +39,26 @@ export default function SignIn() {
         p='8'
         borderRadius='8'
         flexDir='column'
+        //  chamdno a função do react hook form no parametro da função handleSubmit do react hook form
         onSubmit={handleSubmit(handleSignIn)}
       >
         <Stack spacing='4'>
-          <Input name='email' type='email' label='Email' {...register('email')} />
-          <Input name='password' type='password' label='Password' {...register('password')} />
+          <Input
+            name='email'
+            type='email'
+            label='Email'
+            //  estabelecendo padrão de uncontrolled compoenets para passar as informções do inout ao React hook form
+            {...register('email')}
+            //  passando campo de validação de erros ao componnete de InputGenerico
+            error={errors.email}
+          />
+          <Input
+            name='password'
+            type='password'
+            label='Senha'
+            error={errors.password}
+            {...register('password')}
+          />
         </Stack>
         <Button
           type='submit'
