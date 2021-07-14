@@ -7,6 +7,7 @@ import {
   Flex,
   Heading,
   Icon,
+  Spinner,
   Table,
   Tbody,
   Td,
@@ -20,8 +21,38 @@ import { RiAddLine, RiPencilLine } from 'react-icons/ri';
 import Header from '../../components/Header';
 import { Pagination } from '../../components/Pagination';
 import SideBar from '../../components/SideBar';
+import { useEffect } from 'react';
+
+import { useQuery } from 'react-query';
 
 export default function UserList() {
+  // buscando informações com react-query
+  const { data, isLoading, isSuccess, error } = useQuery(
+    'users',
+    async () => {
+      const response = await fetch('http://localhost:3000/api/users');
+      const data = await response.json();
+
+      const users = data.users.map((user) => {
+        return {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          createdAt: new Date(user.createdAt).toLocaleDateString('pt-BR', {
+            day: '2-digit',
+            month: 'long',
+            year: 'numeric',
+          }),
+        };
+      });
+
+      return users;
+    },
+    {
+      staleTime: 1000 * 5, // 5 segundos
+    },
+  );
+
   const isWideVersion = useBreakpointValue({
     base: false,
     lg: true,
@@ -30,7 +61,7 @@ export default function UserList() {
   return (
     <Box>
       <Header />
-      <Flex width='100%' my='6' maxWidth={1480} mx='auto' px='6'>
+      <Flex width='100%' my='6' maxWidth={1480} mx='auto' px={['1', '6']}>
         <SideBar />
 
         <Box flex='1' borderRadius={8} bg='gray.800' p='8'>
@@ -51,54 +82,66 @@ export default function UserList() {
             </Link>
           </Flex>
 
-          <Table colorScheme='whiteAlpha'>
-            <Thead>
-              <Tr>
-                <Th px={['4', '4', '6']} color='gray.300' w='8'>
-                  <Checkbox colorScheme='pink' />
-                </Th>
-                <Th>Usuário</Th>
-                {isWideVersion && <Th>Data de cadastro</Th>}
+          {isLoading ? (
+            <Flex justify='center'>
+              {' '}
+              <Spinner />
+            </Flex>
+          ) : error ? (
+            <Flex justify='center'>
+              <Text>Falha ao obter dados dos usuarios</Text>
+            </Flex>
+          ) : (
+            <>
+              <Table colorScheme='whiteAlpha'>
+                <Thead>
+                  <Tr>
+                    <Th px={['4', '4', '6']} color='gray.300' w='8'>
+                      <Checkbox colorScheme='pink' />
+                    </Th>
+                    <Th>Usuário</Th>
+                    {isWideVersion && <Th>Data de cadastro</Th>}
 
-                {isWideVersion && <Th width='8'></Th>}
-              </Tr>
-            </Thead>
+                    {isWideVersion && <Th width='8'></Th>}
+                  </Tr>
+                </Thead>
 
-            <Tbody>
-              <Tr>
-                <Td px={['4', '4', '6']}>
-                  <Checkbox colorScheme='pink' />
-                </Td>
+                <Tbody>
+                  {data.map((user) => (
+                    <Tr key={user.id}>
+                      <Td px={['4', '4', '6']}>
+                        <Checkbox colorScheme='pink' />
+                      </Td>
+                      <Td>
+                        <Box>
+                          <Text fontWeight='bold'>{user.name}</Text>
+                          <Text fontSize='sm' color='gray.300'>
+                            {user.email}
+                          </Text>
+                        </Box>
+                      </Td>
+                      {isWideVersion && <Td>{user.createdAt}</Td>}
+                      {isWideVersion && (
+                        <Td>
+                          <Button
+                            as='a'
+                            size='sm'
+                            fontSize='sm'
+                            colorScheme='purple'
+                            leftIcon={<Icon as={RiPencilLine} fontSize='16' />}
+                          >
+                            {isWideVersion ? 'Editar' : null}
+                          </Button>
+                        </Td>
+                      )}
+                    </Tr>
+                  ))}
+                </Tbody>
+              </Table>
 
-                <Td>
-                  <Box>
-                    <Text fontWeight='bold'>Cleyton Santana</Text>
-                    <Text fontSize='sm' color='gray.300'>
-                      csttn.dev@gmail.com
-                    </Text>
-                  </Box>
-                </Td>
-
-                {isWideVersion && <Td>04 de Abril de 2021</Td>}
-
-                {isWideVersion && (
-                  <Td>
-                    <Button
-                      as='a'
-                      size='sm'
-                      fontSize='sm'
-                      colorScheme='purple'
-                      leftIcon={<Icon as={RiPencilLine} fontSize='16' />}
-                    >
-                      {isWideVersion ? 'Editar' : null}
-                    </Button>
-                  </Td>
-                )}
-              </Tr>
-            </Tbody>
-          </Table>
-
-          <Pagination />
+              <Pagination />
+            </>
+          )}
         </Box>
       </Flex>
     </Box>
