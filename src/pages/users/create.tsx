@@ -1,13 +1,15 @@
 import { Box, Button, Divider, Flex, Heading, HStack, SimpleGrid, VStack } from '@chakra-ui/react';
-import Link from 'next/link';
-import { Input } from '../../components/Form/Input';
-import Header from '../../components/Header';
-import SideBar from '../../components/SideBar';
-
 import { yupResolver } from '@hookform/resolvers/yup';
-
-import { SubmitErrorHandler, SubmitHandler, useForm } from 'react-hook-form';
+import Link from 'next/link';
+import { useRouter } from 'next/router';
+import { SubmitHandler, useForm } from 'react-hook-form';
+import { useMutation } from 'react-query';
 import * as yup from 'yup';
+import { Input } from '../../components/Form/Input';
+import { Header } from '../../components/Header';
+import { SideBar } from '../../components/SideBar';
+import { api } from '../../services/api';
+import { queryCLient } from '../../services/queryClient';
 
 type createUserFormData = {
   name: string;
@@ -27,15 +29,37 @@ const createUserFormSchema = yup.object().shape({
 });
 
 export default function CreateUser() {
+  const router = useRouter();
+  // salvando usuario com useMutation
+  // A opçãp por escolher o useMutation e não uma função asyncrona comum é que o useMutation permite monitorar a requisição
+  // Ex: isLoading, error, isSuccess e todos os atributos oferecidos pelo react-query
+  const createUser = useMutation(
+    async (user: createUserFormData) => {
+      const response = await api.post('users', {
+        user: { ...user, created_at: new Date() },
+      });
+
+      return response.data.user;
+    },
+    {
+      onSuccess: () => {
+        // deletando cahce salva para regarregar o novo ussuario
+        //  é possivel deletar somenete um endereço de cahce especifico, basta passar ["users", page] e especificar qual cache deseja excluir
+
+        queryCLient.invalidateQueries('users');
+      },
+    },
+  );
+
   const { register, handleSubmit, formState } = useForm({
     resolver: yupResolver(createUserFormSchema),
   });
   const { errors } = formState;
 
   const handleCreteUser: SubmitHandler<createUserFormData> = async (values) => {
-    await new Promise((resolve) => setTimeout(resolve, 2000));
+    await createUser.mutateAsync(values);
 
-    console.log(values);
+    router.push('/users');
   };
 
   return (

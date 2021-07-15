@@ -1,8 +1,7 @@
-import dynamic from 'next/dynamic';
-
 import { Box, Flex, SimpleGrid, Text, theme } from '@chakra-ui/react';
-import Header from '../components/Header';
-import SideBar from '../components/SideBar';
+import dynamic from 'next/dynamic';
+import { Header } from '../components/Header';
+import { SideBar } from '../components/SideBar';
 
 //  importando lib de graficos somenete quando o react chegar ao navegador
 //  evitando erro de processamento do next na camada do node

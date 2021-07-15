@@ -11,7 +11,7 @@ import {
 import { useSideBarDrawer } from '../../context/SideBarDrawerContext';
 import { SideBarNav } from './SideBarNav';
 
-export default function SideBar() {
+export function SideBar() {
   const { isOpen, onClose } = useSideBarDrawer();
 
   const isDrawerSideBar = useBreakpointValue({

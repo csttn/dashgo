@@ -6,7 +6,7 @@ import { NotificationsNav } from './NotificationsNav';
 import { Profile } from './Profile';
 import { SerachBox } from './SerachBox';
 
-export default function Header() {
+export function Header() {
   const { onOpen } = useSideBarDrawer();
 
   const isWideVersion = useBreakpointValue({

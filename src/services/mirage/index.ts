@@ -1,6 +1,5 @@
-import { createServer, Factory, Model, Response } from 'miragejs';
-
 import faker from 'faker';
+import { ActiveModelSerializer, createServer, Factory, Model, Response } from 'miragejs';
 
 type User = {
   name: string;
@@ -10,6 +9,9 @@ type User = {
 
 export function makeServer() {
   const server = createServer({
+    serializers: {
+      application: ActiveModelSerializer,
+    },
     models: {
       user: Model.extend<Partial<User>>({}),
     },
@@ -45,12 +47,18 @@ export function makeServer() {
         //  calculando indice final
         const pageEnd = pageStart + Number(per_page);
 
-        const users = this.serialize(schema.all('user')).users.slice(pageStart, pageEnd);
+        const users = this.serialize(schema.all('user'))
+          // algoritmo de ordenação de arrays de objeto por data mias recente
+          .users.sort((a, b) => {
+            return Number(new Date(b.created_at)) - Number(new Date(a.created_at));
+          })
+          .slice(pageStart, pageEnd);
 
         return new Response(200, { 'x-total-count': String(total) }, { users });
       });
 
       this.post('/users');
+      this.get('/users/:id');
 
       this.namespace = '';
       this.passthrough();

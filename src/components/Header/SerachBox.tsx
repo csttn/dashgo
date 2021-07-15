@@ -5,8 +5,6 @@ import { RiSearch2Line } from 'react-icons/ri';
 export function SerachBox() {
   const searchInputRef = useRef<HTMLInputElement>(null);
 
-  // console.log(searchInputRef.current.value);
-
   return (
     <Flex
       as='label'
